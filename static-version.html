@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消灭粽子 - 价值观主题消消乐</title>
+    <style>
+        /* 内联样式，原来从style.css导入 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", "黑体", sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            background-image: url('https://img.zcool.cn/community/0191cf5815ee2aa84a0e282b091de8.jpg'); /* 使用在线背景图片 */
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h1 {
+            color: #d63031;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .timer, .score {
+            background-color: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer span:nth-child(2), .score span:nth-child(2) {
+            font-weight: bold;
+            color: #e17055;
+        }
+
+        .screen {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #start-screen h2, #end-screen h2 {
+            font-size: 1.8rem;
+            color: #2d3436;
+            margin-bottom: 20px;
+        }
+
+        .rules {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .rules h3 {
+            color: #d63031;
+            margin-bottom: 10px;
+        }
+
+        .rules ul {
+            list-style-position: inside;
+            margin-left: 10px;
+        }
+
+        .rules li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        #player-name {
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 10px 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #d63031;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        #game-board {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 600px;
+            margin: 0 auto;
+        }
+
+        .zongzi {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background-color: transparent; /* 改为透明背景 */
+            border: 2px solid rgba(214, 48, 49, 0.5); /* 淡化边框 */
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        /* 添加不同粽子类型的背景图片 */
+        .zongzi[data-id="fact"] {
+            background-image: url('./static/images/抛开表面事实.png');
+        }
+        .zongzi[data-id="principle"] {
+            background-image: url('./static/images/回归基础原理.png');
+        }
+        .zongzi[data-id="key"] {
+            background-image: url('./static/images/抓住突破关键.png');
+        }
+        .zongzi[data-id="risk"] {
+            background-image: url('./static/images/顶着巨大风险.png');
+        }
+        .zongzi[data-id="method"] {
+            background-image: url('./static/images/想尽一切办法.png');
+        }
+        .zongzi[data-id="optimize"] {
+            background-image: url('./static/images/长期全局最优.png');
+        }
+        .zongzi[data-id="longterm"] {
+            background-image: url('./static/images/长期主义.png');
+        }
+        .zongzi[data-id="public"] {
+            background-image: url('./static/images/公心.png');
+        }
+        .zongzi[data-id="learning"] {
+            background-image: url('./static/images/持续学习.png');
+        }
+        .zongzi[data-id="evolve"] {
+            background-image: url('./static/images/自我觉察进化.png');
+        }
+
+        .zongzi:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .zongzi.selected {
+            border-color: #0984e3;
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.3);
+        }
+
+        .zongzi-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 文字显示在底部 */
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #2d3436;
+            padding: 5px;
+            text-shadow: 0 0 3px white; /* 添加文字阴影增加可读性 */
+            background: linear-gradient(transparent 60%, rgba(255, 255, 255, 0.8) 100%); /* 底部渐变背景提高文字可读性 */
+            border-radius: 8px;
+        }
+
+        /* 弹出提示样式 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 1000;
+            transition: opacity 0.3s, transform 0.3s;
+            text-align: center;
+        }
+
+        .toast.hidden {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+            pointer-events: none;
+        }
+
+        .toast.success {
+            background-color: rgba(39, 174, 96, 0.9);
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #d63031;
+        }
+
+        .achievements {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .achievement {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .achievement .item {
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .leaderboard {
+            margin-top: 30px;
+        }
+
+        .leaderboard h3 {
+            color: #d63031;
+            margin-bottom: 10px;
+        }
+
+        #leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        #leaderboard-table th, #leaderboard-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        #leaderboard-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        #leaderboard-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        #leaderboard-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* 响应式设计 */
+        @media screen and (max-width: 768px) {
+            .game-container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                font-size: 1rem;
+            }
+            
+            #game-board {
+                max-width: 450px;
+                height: 450px;
+            }
+            
+            .zongzi {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .zongzi-content {
+                font-size: 0.7rem;
+                padding: 3px;
+            }
+            
+            .toast {
+                font-size: 1.5rem;
+                padding: 15px 30px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #game-board {
+                max-width: 300px;
+                height: 300px;
+            }
+            
+            .zongzi {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .zongzi-content {
+                font-size: 0.6rem;
+                padding: 2px;
+            }
+            
+            .rules li {
+                font-size: 0.9rem;
+            }
+            
+            .toast {
+                font-size: 1.2rem;
+                padding: 12px 25px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pop {
+            animation: pop 0.3s ease;
+        }
+
+        .fade-in {
+            animation: fade-in 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>消灭粽子</h1>
+            <div class="game-info">
+                <div class="timer">
+                    <span>时间：</span>
+                    <span id="timer">60</span>
+                    <span>秒</span>
+                </div>
+                <div class="score">
+                    <span>分数：</span>
+                    <span id="score">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 游戏开始界面 -->
+        <div id="start-screen" class="screen">
+            <h2>消灭粽子</h2>
+            <p>合成并消除价值观粽子，创造更高分数！</p>
+            <div class="rules">
+                <h3>游戏规则：</h3>
+                <ul>
+                    <li><strong>价值观合成规则：</strong></li>
+                    <li>"抛开表面事实"+"回归基础原理"+"抓住突破关键" → 显示"第一性"并消除</li>
+                    <li>"顶着巨大风险"+"想尽一切办法"+"长期全局最优" → 显示"求极致"并消除</li>
+                    <li>"长期主义"+"公心"+"持续学习"+"自我觉察进化" → 显示"共成长"并消除</li>
+                    <li>成功合成价值观可获得80分</li>
+                    <li>游戏时间为60秒，尽可能多地合成价值观！</li>
+                    <li>粽子被消除后位置会保持空缺，不会产生新的粽子</li>
+                    <li>当无法继续合成时，游戏将自动结束</li>
+                </ul>
+            </div>
+            <input type="text" id="player-name" placeholder="请输入您的名字" maxlength="10">
+            <button id="start-btn">开始游戏</button>
+        </div>
+
+        <!-- 游戏主界面 -->
+        <div id="game-screen" class="screen hidden">
+            <div id="game-board"></div>
+        </div>
+
+        <!-- 游戏结束界面 -->
+        <div id="end-screen" class="screen hidden">
+            <h2>游戏结束</h2>
+            <div class="final-score">
+                <p>最终得分：<span id="final-score">0</span></p>
+            </div>
+            <h3>价值观成就：</h3>
+            <div class="achievements">
+                <div class="achievement">
+                    <span class="item">第一性：</span>
+                    <span id="achievement-1">0</span>
+                </div>
+                <div class="achievement">
+                    <span class="item">求极致：</span>
+                    <span id="achievement-2">0</span>
+                </div>
+                <div class="achievement">
+                    <span class="item">共成长：</span>
+                    <span id="achievement-3">0</span>
+                </div>
+            </div>
+            <button id="restart-btn">再玩一次</button>
+            <div class="leaderboard">
+                <h3>历史最高分</h3>
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>玩家</th>
+                            <th>分数</th>
+                            <th>时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 排行榜数据将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音频资源 - 使用在线音频源 -->
+    <audio id="bgm" loop preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+    </audio>
+    <audio id="click-sound" preload="auto">
+        <source src="https://www.soundjay.com/button/button-30.mp3" type="audio/mp3">
+    </audio>
+    <audio id="merge-sound" preload="auto">
+        <source src="https://www.soundjay.com/button/button-35.mp3" type="audio/mp3">
+    </audio>
+    <audio id="game-over-sound" preload="auto">
+        <source src="https://www.soundjay.com/button/button-43.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- 游戏脚本将在下方内联 -->
+    <script>
+        // 游戏配置
+        const GAME_CONFIG = {
+            rows: 6,
+            cols: 6,
+            gameDuration: 60, // 游戏时长（秒）
+            normalSize: 1,    // 普通粽子尺寸
+            pointsForNormal: 10,   // 普通粽子的基础分数
+            pointsForMerge: 80,    // 合成价值观的分数
+            toastDuration: 1000    // 提示显示持续时间（毫秒）
+        };
+
+        // 粽子类型
+        const ZONGZI_TYPES = {
+            // 普通粽子
+            NORMAL: [
+                { id: "fact" },
+                { id: "principle"},
+                { id: "key" },
+                { id: "risk" },
+                { id: "method" },
+                { id: "optimize"},
+                { id: "longterm"},
+                { id: "public"},
+                { id: "learning"},
+                { id: "evolve"}
+            ],
+            // 合成规则
+            MERGE_RULES: [
+                {
+                    inputs: ["fact", "principle", "key"],
+                    result: { id: "first", text: "第一性" }
+                },
+                {
+                    inputs: ["risk", "method", "optimize"],
+                    result: { id: "extreme", text: "求极致" }
+                },
+                {
+                    inputs: ["longterm", "public", "learning", "evolve"],
+                    result: { id: "growth", text: "共成长" }
+                }
+            ]
+        };
+
+        // 游戏状态
+        const gameState = {
+            isGameActive: false,
+            board: [],
+            selectedItems: [],
+            score: 0,
+            timeLeft: GAME_CONFIG.gameDuration,
+            timerInterval: null,
+            playerName: "",
+            achievements: {
+                "first": 0,
+                "extreme": 0,
+                "growth": 0
+            },
+            toast: null
+        };
+
+        // DOM 元素
+        const DOM = {
+            startScreen: document.getElementById("start-screen"),
+            gameScreen: document.getElementById("game-screen"),
+            endScreen: document.getElementById("end-screen"),
+            gameBoard: document.getElementById("game-board"),
+            timerDisplay: document.getElementById("timer"),
+            scoreDisplay: document.getElementById("score"),
+            finalScoreDisplay: document.getElementById("final-score"),
+            startButton: document.getElementById("start-btn"),
+            restartButton: document.getElementById("restart-btn"),
+            playerNameInput: document.getElementById("player-name"),
+            leaderboardTable: document.getElementById("leaderboard-table").querySelector("tbody"),
+            achievementDisplays: {
+                "first": document.getElementById("achievement-1"),
+                "extreme": document.getElementById("achievement-2"),
+                "growth": document.getElementById("achievement-3")
+            },
+            sounds: {
+                bgm: document.getElementById("bgm"),
+                click: document.getElementById("click-sound"),
+                merge: document.getElementById("merge-sound"),
+                gameOver: document.getElementById("game-over-sound")
+            }
+        };
+        
+        // 初始化游戏
+        function initGame() {
+            // 创建提示元素
+            createToastElement();
+            
+            // 绑定事件监听器
+            DOM.startButton.addEventListener("click", startGame);
+            DOM.restartButton.addEventListener("click", restartGame);
+            
+            // 窗口大小改变时重新计算粽子位置
+            window.addEventListener("resize", repositionAllZongzi);
+            
+            // 加载排行榜
+            loadLeaderboard();
+        }
+
+        // 创建提示元素
+        function createToastElement() {
+            const toast = document.createElement("div");
+            toast.className = "toast hidden";
+            document.body.appendChild(toast);
+            gameState.toast = toast;
+        }
+
+        // 显示提示消息
+        function showToast(message, type) {
+            if (!gameState.toast) return;
+            
+            // 清除之前的提示
+            clearTimeout(gameState.toastTimeout);
+            
+            // 设置提示内容和样式
+            gameState.toast.textContent = message;
+            gameState.toast.className = `toast ${type || ''}`;
+            
+            // 显示提示
+            gameState.toast.classList.remove("hidden");
+            
+            // 定时隐藏提示
+            gameState.toastTimeout = setTimeout(() => {
+                gameState.toast.classList.add("hidden");
+            }, GAME_CONFIG.toastDuration);
+        }
+
+        // 开始游戏
+        function startGame() {
+            // 获取玩家名称
+            gameState.playerName = DOM.playerNameInput.value.trim() || "匿名玩家";
+            
+            // 切换屏幕显示
+            DOM.startScreen.classList.add("hidden");
+            DOM.gameScreen.classList.remove("hidden");
+            
+            // 初始化游戏状态
+            gameState.isGameActive = true;
+            gameState.score = 0;
+            gameState.timeLeft = GAME_CONFIG.gameDuration;
+            gameState.selectedItems = [];
+            gameState.achievements = {
+                "first": 0,
+                "extreme": 0,
+                "growth": 0
+            };
+            
+            // 更新显示
+            updateScoreDisplay();
+            updateTimerDisplay();
+            
+            // 初始化游戏板
+            createGameBoard();
+            
+            // 开始计时器
+            startTimer();
+            
+            // 播放背景音乐
+            DOM.sounds.bgm.play().catch(e => console.log("无法播放音频，可能需要用户交互"));
+        }
+
+        // 计算当前屏幕的单元格大小
+        function calculateCellSize() {
+            const gameBoardWidth = DOM.gameBoard.clientWidth;
+            const cellSize = Math.floor(gameBoardWidth / GAME_CONFIG.cols);
+            const gap = 10; // 间隙大小
+            return { cellSize, gap };
+        }
+
+        // 创建游戏板
+        function createGameBoard() {
+            // 清空游戏板
+            DOM.gameBoard.innerHTML = "";
+            gameState.board = [];
+            
+            // 创建初始粽子
+            const zongziTypeCounts = {};
+            const requiredCounts = calculateRequiredZongziCounts();
+            
+            // 初始化二维数组
+            for (let row = 0; row < GAME_CONFIG.rows; row++) {
+                gameState.board[row] = [];
+            }
+            
+            // 创建所有可能的粽子类型列表，并打乱顺序
+            const allZongziTypes = [];
+            
+            // 先填充必要的组合粽子
+            for (const [typeId, count] of Object.entries(requiredCounts)) {
+                zongziTypeCounts[typeId] = 0;
+                const zongziType = ZONGZI_TYPES.NORMAL.find(type => type.id === typeId);
+                for (let i = 0; i < count; i++) {
+                    allZongziTypes.push(zongziType);
+                }
+            }
+            
+            // 打乱粽子类型顺序
+            shuffleArray(allZongziTypes);
+            
+            // 按照打乱后的顺序放置粽子
+            let typeIndex = 0;
+            const totalCells = GAME_CONFIG.rows * GAME_CONFIG.cols;
+            const remainingCells = totalCells - allZongziTypes.length;
+            
+            // 先放置必要的粽子
+            for (let i = 0; i < allZongziTypes.length; i++) {
+                const emptyCell = findEmptyCell();
+                if (emptyCell) {
+                    const { row, col } = emptyCell;
+                    const zongziType = allZongziTypes[i];
+                    createSpecificZongzi(row, col, zongziType);
+                    zongziTypeCounts[zongziType.id] = (zongziTypeCounts[zongziType.id] || 0) + 1;
+                }
+            }
+            
+            // 填充剩余空位
+            for (let i = 0; i < remainingCells; i++) {
+                const emptyCell = findEmptyCell();
+                if (emptyCell) {
+                    const { row, col } = emptyCell;
+                    const typeId = getRandomBalancedZongziType(zongziTypeCounts, requiredCounts);
+                    const zongziType = ZONGZI_TYPES.NORMAL.find(type => type.id === typeId);
+                    createSpecificZongzi(row, col, zongziType);
+                    zongziTypeCounts[typeId] = (zongziTypeCounts[typeId] || 0) + 1;
+                }
+            }
+        }
+
+        // 计算需要的各类型粽子数量，确保能够合成
+        function calculateRequiredZongziCounts() {
+            const counts = {};
+            
+            // 初始化所有粽子类型的计数为0
+            ZONGZI_TYPES.NORMAL.forEach(type => {
+                counts[type.id] = 0;
+            });
+            
+            // 计算需要多少组合
+            const totalCells = GAME_CONFIG.rows * GAME_CONFIG.cols;
+            let availableCells = totalCells;
+            
+            // 为每个合成规则分配粽子
+            for (const rule of ZONGZI_TYPES.MERGE_RULES) {
+                // 计算这个规则最多可以使用多少组合
+                const maxGroups = Math.floor(availableCells / rule.inputs.length);
+                // 由于不再填充新粽子，增加每个组合的初始数量
+                const groups = Math.max(3, Math.floor(maxGroups / ZONGZI_TYPES.MERGE_RULES.length));
+                
+                // 为每个输入增加所需数量
+                rule.inputs.forEach(inputId => {
+                    counts[inputId] += groups;
+                });
+                
+                // 更新可用单元格数量
+                availableCells -= groups * rule.inputs.length;
+            }
+            
+            return counts;
+        }
+
+        // 寻找空闲的单元格
+        function findEmptyCell() {
+            // 收集所有空位置
+            const emptyCells = [];
+            for (let row = 0; row < GAME_CONFIG.rows; row++) {
+                for (let col = 0; col < GAME_CONFIG.cols; col++) {
+                    if (!gameState.board[row][col]) {
+                        emptyCells.push({ row, col });
+                    }
+                }
+            }
+            
+            // 如果有空位置，随机返回一个
+            if (emptyCells.length > 0) {
+                const randomIndex = Math.floor(Math.random() * emptyCells.length);
+                return emptyCells[randomIndex];
+            }
+            
+            return null;
+        }
+
+        // 获取平衡的随机粽子类型，确保所有粽子最终能被消除
+        function getRandomBalancedZongziType(currentCounts, requiredCounts) {
+            // 计算每种类型的差距
+            const deficit = {};
+            let totalDeficit = 0;
+            
+            for (const typeId in requiredCounts) {
+                const required = requiredCounts[typeId];
+                const current = currentCounts[typeId] || 0;
+                if (current < required) {
+                    deficit[typeId] = required - current;
+                    totalDeficit += deficit[typeId];
+                }
+            }
+            
+            // 如果有差距，优先填补差距最大的类型
+            if (totalDeficit > 0) {
+                // 按差距大小排序
+                const sortedDeficit = Object.entries(deficit)
+                    .filter(([_, value]) => value > 0)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                if (sortedDeficit.length > 0) {
+                    return sortedDeficit[0][0];
+                }
+            }
+            
+            // 如果没有差距或已经平衡，随机选择
+            return ZONGZI_TYPES.NORMAL[Math.floor(Math.random() * ZONGZI_TYPES.NORMAL.length)].id;
+        }
+
+        // 创建特定类型的粽子
+        function createSpecificZongzi(row, col, zongziType) {
+            // 创建粽子元素
+            const zongzi = document.createElement("div");
+            zongzi.className = "zongzi fade-in";
+            zongzi.dataset.row = row;
+            zongzi.dataset.col = col;
+            zongzi.dataset.id = zongziType.id;
+            
+            // 设置粽子位置（绝对定位）
+            const { cellSize, gap } = calculateCellSize();
+            const size = cellSize - gap; // 粽子的实际大小
+            
+            zongzi.style.width = `${size}px`;
+            zongzi.style.height = `${size}px`;
+            zongzi.style.left = `${col * cellSize}px`;
+            zongzi.style.top = `${row * cellSize}px`;
+            
+            // 创建粽子内容
+            const content = document.createElement("div");
+            content.className = "zongzi-content";
+            content.textContent = zongziType.text;
+            zongzi.appendChild(content);
+            
+            // 添加点击事件
+            zongzi.addEventListener("click", handleZongziClick);
+            
+            // 添加到游戏板
+            DOM.gameBoard.appendChild(zongzi);
+            
+            // 更新游戏状态
+            gameState.board[row][col] = {
+                element: zongzi,
+                type: zongziType,
+                isLarge: false
+            };
+        }
+
+        // 处理粽子点击
+        function handleZongziClick(event) {
+            // 如果游戏未激活，则忽略点击
+            if (!gameState.isGameActive) return;
+            
+            // 播放点击音效
+            DOM.sounds.click.play().catch(e => console.log("无法播放音频"));
+            
+            // 获取行列信息
+            const zongzi = event.currentTarget;
+            const row = parseInt(zongzi.dataset.row);
+            const col = parseInt(zongzi.dataset.col);
+            const id = zongzi.dataset.id;
+            
+            // 检查是否已经选中
+            const index = gameState.selectedItems.findIndex(item => item.row === row && item.col === col);
+            
+            if (index >= 0) {
+                // 如果已经选中，则取消选中
+                gameState.selectedItems.splice(index, 1);
+                zongzi.classList.remove("selected");
+            } else {
+                // 选中当前粽子
+                gameState.selectedItems.push({ row, col, id });
+                zongzi.classList.add("selected");
+                
+                // 检查是否形成合成组合
+                checkForMerge();
+            }
+        }
+        
+        // 检查是否可以合成
+        function checkForMerge() {
+            if (gameState.selectedItems.length < 3) return;
+            
+            // 检查选中的粽子是否构成合成规则中的一种
+            for (const rule of ZONGZI_TYPES.MERGE_RULES) {
+                const selectedIds = gameState.selectedItems.map(item => item.id).sort();
+                const ruleInputs = [...rule.inputs].sort();
+                
+                // 检查选中的ID是否符合当前规则
+                if (selectedIds.length === ruleInputs.length && 
+                    selectedIds.every((id, index) => id === ruleInputs[index])) {
+                    // 显示合成的值
+                    showMergeResult(rule.result);
+                    // 延迟一秒后执行消除
+                    setTimeout(() => {
+                        // 执行合成
+                        performMerge(rule);
+                    }, GAME_CONFIG.toastDuration);
+                    
+                    break;
+                }
+            }
+        }
+        
+        // 显示合成结果
+        function showMergeResult(result) {
+            if (gameState.toast) {
+                gameState.toast.classList.add("value-toast");
+                gameState.toast.textContent = result.text;
+                gameState.toast.classList.remove("hidden");
+                
+                // 定时隐藏提示
+                clearTimeout(gameState.toastTimeout);
+                gameState.toastTimeout = setTimeout(() => {
+                    gameState.toast.classList.add("hidden");
+                    gameState.toast.classList.remove("value-toast");
+                }, GAME_CONFIG.toastDuration);
+            }
+        }
+        
+        // 执行合成
+        function performMerge(rule) {
+            // 增加分数
+            addScore(GAME_CONFIG.pointsForMerge);
+            
+            // 记录成就
+            gameState.achievements[rule.result.id] += 1;
+            
+            // 播放合成音效
+            DOM.sounds.merge.play().catch(e => console.log("无法播放音频"));
+            
+            // 消除已选中的粽子
+            removeSelectedZongzi();
+            
+            // 检查可能的匹配
+            if (!checkForPossibleMatches()) {
+                // 如果没有可能的匹配，游戏结束
+                showToast("无法继续合成，游戏结束！", "success");
+                setTimeout(() => {
+                    endGame();
+                }, GAME_CONFIG.toastDuration * 1.5);
+            }
+        }
+        
+        // 移除选中的粽子
+        function removeSelectedZongzi() {
+            // 从DOM中移除元素
+            gameState.selectedItems.forEach(item => {
+                const element = gameState.board[item.row][item.col].element;
+                element.classList.add("fade-out");
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                }, 300); // 动画持续时间
+                
+                // 从游戏状态中移除
+                gameState.board[item.row][item.col] = null;
+            });
+            
+            // 清空选中项
+            gameState.selectedItems = [];
+        }
+        
+        // 填充空缺（修改为不添加新粽子，保留这个函数但实际不调用它）
+        function fillEmptySpaces() {
+            // 此函数已不再被调用，保留以备将来可能需要
+            console.log("填充功能已禁用，空位将保持不变");
+        }
+        
+        // 检查可能的匹配
+        function checkForPossibleMatches() {
+            // 检查是否有可能形成合成规则中的组合
+            const availableTypes = {};
+            
+            // 统计游戏板上各类型粽子的数量
+            for (let row = 0; row < GAME_CONFIG.rows; row++) {
+                for (let col = 0; col < GAME_CONFIG.cols; col++) {
+                    if (gameState.board[row][col]) {
+                        const typeId = gameState.board[row][col].type.id;
+                        availableTypes[typeId] = (availableTypes[typeId] || 0) + 1;
+                    }
+                }
+            }
+            
+            // 检查每个合成规则
+            for (const rule of ZONGZI_TYPES.MERGE_RULES) {
+                // 检查是否有足够的各类型粽子
+                const hasEnough = rule.inputs.every(inputId => {
+                    const count = availableTypes[inputId] || 0;
+                    return count >= 1;
+                });
+                
+                if (hasEnough) {
+                    return true; // 存在可能的匹配
+                }
+            }
+            
+            return false; // 没有可能的匹配
+        }
+        
+        // 增加分数
+        function addScore(points) {
+            gameState.score += points;
+            updateScoreDisplay();
+        }
+        
+        // 更新分数显示
+        function updateScoreDisplay() {
+            DOM.scoreDisplay.textContent = gameState.score;
+        }
+        
+        // 重新定位所有粽子（窗口大小改变时调用）
+        function repositionAllZongzi() {
+            const { cellSize } = calculateCellSize();
+            const size = cellSize - 10; // 减去间隙
+            
+            for (let row = 0; row < GAME_CONFIG.rows; row++) {
+                for (let col = 0; col < GAME_CONFIG.cols; col++) {
+                    if (gameState.board[row][col]) {
+                        const element = gameState.board[row][col].element;
+                        element.style.width = `${size}px`;
+                        element.style.height = `${size}px`;
+                        element.style.left = `${col * cellSize}px`;
+                        element.style.top = `${row * cellSize}px`;
+                    }
+                }
+            }
+        }
+        
+        // 开始计时器
+        function startTimer() {
+            // 清除之前的计时器
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            // 设置新计时器
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateTimerDisplay();
+                
+                // 检查游戏是否结束
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            DOM.timerDisplay.textContent = gameState.timeLeft;
+        }
+
+        // 结束游戏
+        function endGame() {
+            // 停止计时器
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+            
+            // 更新游戏状态
+            gameState.isGameActive = false;
+            
+            // 播放游戏结束音效
+            DOM.sounds.bgm.pause();
+            DOM.sounds.gameOver.play().catch(e => console.log("无法播放音频"));
+            
+            // 更新最终分数显示
+            DOM.finalScoreDisplay.textContent = gameState.score;
+            
+            // 更新成就显示
+            for (const [key, count] of Object.entries(gameState.achievements)) {
+                if (DOM.achievementDisplays[key]) {
+                    DOM.achievementDisplays[key].textContent = count;
+                }
+            }
+            
+            // 提交分数
+            submitScore();
+            
+            // 切换屏幕显示
+            DOM.gameScreen.classList.add("hidden");
+            DOM.endScreen.classList.remove("hidden");
+        }
+        
+        // 提交分数
+        function submitScore() {
+            // 从本地存储获取现有排行榜
+            let leaderboard = getLeaderboard();
+            
+            // 添加当前分数
+            leaderboard.push({
+                name: gameState.playerName,
+                score: gameState.score,
+                achievements: { ...gameState.achievements }
+            });
+            
+            // 根据分数排序
+            leaderboard.sort((a, b) => b.score - a.score);
+            
+            // 保留前10名
+            if (leaderboard.length > 10) {
+                leaderboard = leaderboard.slice(0, 10);
+            }
+            
+            // 保存到本地存储
+            saveLeaderboard(leaderboard);
+            
+            // 更新排行榜显示
+            updateLeaderboardDisplay(leaderboard);
+        }
+        
+        // 获取排行榜数据
+        function getLeaderboard() {
+            try {
+                const leaderboardData = localStorage.getItem("xiaoxiaole_leaderboard");
+                return leaderboardData ? JSON.parse(leaderboardData) : [];
+            } catch (error) {
+                console.error("读取排行榜数据失败", error);
+                return [];
+            }
+        }
+        
+        // 保存排行榜数据
+        function saveLeaderboard(leaderboard) {
+            try {
+                localStorage.setItem("xiaoxiaole_leaderboard", JSON.stringify(leaderboard));
+            } catch (error) {
+                console.error("保存排行榜数据失败", error);
+            }
+        }
+        
+        // 加载排行榜
+        function loadLeaderboard() {
+            const leaderboard = getLeaderboard();
+            updateLeaderboardDisplay(leaderboard);
+        }
+        
+        // 更新排行榜显示
+        function updateLeaderboardDisplay(leaderboard) {
+            // 清空表格
+            DOM.leaderboardTable.innerHTML = "";
+            
+            // 添加每一行
+            leaderboard.forEach((entry, index) => {
+                const row = document.createElement("tr");
+                
+                // 排名
+                const rankCell = document.createElement("td");
+                rankCell.textContent = index + 1;
+                row.appendChild(rankCell);
+                
+                // 玩家名
+                const nameCell = document.createElement("td");
+                nameCell.textContent = entry.name;
+                row.appendChild(nameCell);
+                
+                // 分数
+                const scoreCell = document.createElement("td");
+                scoreCell.textContent = entry.score;
+                row.appendChild(scoreCell);
+                
+                // 成就
+                const achievementsCell = document.createElement("td");
+                const achievements = entry.achievements || {};
+                achievementsCell.textContent = `第一性: ${achievements.first || 0}, 求极致: ${achievements.extreme || 0}, 共成长: ${achievements.growth || 0}`;
+                row.appendChild(achievementsCell);
+                
+                // 添加到表格
+                DOM.leaderboardTable.appendChild(row);
+            });
+        }
+        
+        // 重新开始游戏
+        function restartGame() {
+            // 切换屏幕显示
+            DOM.endScreen.classList.add("hidden");
+            DOM.startScreen.classList.remove("hidden");
+            
+            // 重置玩家名输入框
+            DOM.playerNameInput.value = gameState.playerName;
+        }
+        
+        // 工具函数：洗牌数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // 当DOM加载完成后初始化游戏
+        document.addEventListener("DOMContentLoaded", initGame);
+    </script>
+</body>
+</html> 
